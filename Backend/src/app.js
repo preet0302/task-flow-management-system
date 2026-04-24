@@ -1,0 +1,23 @@
+const express = require("express");
+const taskRoutes = require("../src/routes/task.routes");
+const authRoutes = require("../src/routes/auth.routes");
+const usersRoutes = require("../src/routes/users.routes");
+const cookieParser = require("cookie-parser");
+
+const cors = require("cors");
+const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5174",
+    credentials: true,
+  }),
+);
+app.use(cookieParser());
+app.use(express.json());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/users", usersRoutes);
+
+
+module.exports = app;

@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Urbanist", sans-serif;
+  --breakpoint-3xl: 1920px;
+  --color-primary: #7c3aed;
+}
+
+html {
+  font-family: var(--font-display);
+  scroll-behavior: smooth;
+}
+
+ body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #000000;
+    color: #ffffff;
+    overflow-x: hidden;
+  }
+/* body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background:
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.25), transparent 40%),
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.25), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.08), transparent 40%),
+    #000000;
+  color: #ffffff;
+  overflow-x: hidden;
+} */
