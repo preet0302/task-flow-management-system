@@ -64,20 +64,27 @@ const taskSlice = createSlice({
     builder
       // ✅ pehle addCase
       .addCase(fetchTasks.fulfilled, (state, action) => {
-        state.tasks = action.payload;
+        state.tasks = action.payload?.tasks || [];
+        state.loading = false;
       })
 
       .addCase(createTask.fulfilled, (state, action) => {
-        state.tasks.push(action.payload);
+        state.tasks.push(action.payload.task);
+        state.loading = false;
       })
 
       .addCase(updateTask.fulfilled, (state, action) => {
+        if (!action.payload?.task) return;
+
         const index = state.tasks.findIndex(
-          (t) => t._id === action.payload._id,
+          (t) => t._id === action.payload.task._id,
         );
+
         if (index !== -1) {
-          state.tasks[index] = action.payload;
+          state.tasks[index] = action.payload.task;
         }
+
+        state.loading = false;
       })
 
       .addCase(deleteTask.fulfilled, (state, action) => {

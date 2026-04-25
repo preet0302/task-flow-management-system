@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchTasks, deleteTask } from "../../redux/slices/taskSlice";
 import TaskUpdate from "./TaskUpdate";
 import { FaEdit, FaTrash, FaTasks } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const getStatusColor = (status) => {
   if (status === "Pending") return "bg-yellow-500/20 text-yellow-400";
@@ -32,33 +33,36 @@ const TaskList = () => {
     if (window.confirm("Delete this task?")) {
       setDeletingId(id);
 
-      await dispatch(deleteTask(id));
-      dispatch(fetchTasks());
+      const res = await dispatch(deleteTask(id));
+
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Task deleted successfully 🗑️");
+      } else {
+        toast.error(res.payload || "Delete failed ❌");
+      }
 
       setDeletingId(null);
     }
   };
 
   return (
-    <div className="p-6 text-white bg-[#020617] min-h-screen space-y-6 w-full">
-      
+    <div className="p-4 md:p-6 text-white bg-[#020617] h-full space-y-4 md:space-y-6 w-full">
       {/* 🔥 Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2">
+          <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2">
             <FaTasks /> My Tasks
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-xs md:text-sm text-gray-400">
             Manage and track your tasks.
           </p>
         </div>
       </div>
 
       {/* 🔥 Table */}
-      <div className="bg-[#0f172a] rounded-xl border border-white/10 overflow-hidden">
-
-        {/* Header Row */}
-        <div className="grid grid-cols-5 p-4 text-gray-400 text-sm border-b border-white/10">
+      <div className="mt-2 md:mt-4 bg-[#0f172a] rounded-xl border border-white/10 overflow-hidden">
+        {/* Header Row (desktop only) */}
+        <div className="hidden md:grid grid-cols-5 p-4 text-gray-400 text-sm border-b border-white/10">
           <span>Title</span>
           <span>Status</span>
           <span>Due Date</span>
@@ -66,7 +70,7 @@ const TaskList = () => {
           <span>Actions</span>
         </div>
 
-        {/* 🔥 Empty State */}
+        {/* Empty */}
         {tasks.length === 0 && (
           <p className="p-4 text-gray-400">No tasks found</p>
         )}
@@ -75,44 +79,59 @@ const TaskList = () => {
         {tasks.map((task) => (
           <div
             key={task._id}
-            className="grid grid-cols-5 p-4 items-center border-b border-white/10 hover:bg-white/5 transition"
+            className="flex flex-col gap-3 md:grid md:grid-cols-5 p-4 text-xs md:text-sm border-b border-white/10"
           >
-            <span className="font-medium">{task.title}</span>
+            {/* Title */}
+            <div className="flex justify-between items-center md:block">
+              <span className="text-gray-500 md:hidden">Title</span>
+              <span className="font-medium truncate">{task.title}</span>
+            </div>
 
-            <span
-              className={`px-2 py-1 rounded text-xs w-fit ${getStatusColor(task.status)}`}
-            >
-              {task.status}
-            </span>
-
-            <span>
-              {task.dueDate?.slice(0, 10)}
-            </span>
-
-            <span
-              className={`px-2 py-1 rounded text-xs w-fit ${getPriorityColor(task.priority)}`}
-            >
-              {task.priority}
-            </span>
-
-            {/* 🔥 Actions */}
-            <div className="flex gap-4 text-lg">
-              
-              {/* Edit */}
-              <button
-                onClick={() => setSelectedTask(task)}
-                className="text-blue-400 hover:scale-110 transition"
+            {/* Status */}
+            <div className="flex justify-between items-center md:block">
+              <span className="text-gray-500 md:hidden">Status</span>
+              <span
+                className={`px-2 py-1 rounded text-xs w-fit ${getStatusColor(task.status)}`}
               >
-                <FaEdit />
-              </button>
+                {task.status}
+              </span>
+            </div>
 
-              {/* Delete */}
-              <button
-                onClick={() => handleDelete(task._id)}
-                className="text-red-400 hover:scale-110 transition"
+            {/* Date */}
+            <div className="flex justify-between items-center md:block">
+              <span className="text-gray-500 md:hidden">Date</span>
+              <span className="truncate">{task.dueDate?.slice(0, 10)}</span>
+            </div>
+
+            {/* Priority */}
+            <div className="flex justify-between items-center md:block">
+              <span className="text-gray-500 md:hidden">Priority</span>
+              <span
+                className={`px-2 py-1 rounded text-xs w-fit ${getPriorityColor(task.priority)}`}
               >
-                {deletingId === task._id ? "..." : <FaTrash />}
-              </button>
+                {task.priority}
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-between items-center md:flex md:gap-3 mt-1 md:mt-0">
+              <span className="text-gray-500 md:hidden">Actions</span>
+
+              <div className="flex items-center gap-2 md:gap-4 text-sm md:text-base md:justify-start">
+                <button
+                  onClick={() => setSelectedTask(task)}
+                  className="px-1.5 py-1 md:px-2 md:py-1 rounded-md text-blue-400 hover:bg-blue-500/10 transition"
+                >
+                  <FaEdit />
+                </button>
+
+                <button
+                  onClick={() => handleDelete(task._id)}
+                  className="px-1.5 py-1 md:px-2 md:py-1 rounded-md text-red-400 hover:bg-red-500/10 transition"
+                >
+                  {deletingId === task._id ? "..." : <FaTrash />}
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -120,10 +139,7 @@ const TaskList = () => {
 
       {/* 🔥 Modal */}
       {selectedTask && (
-        <TaskUpdate
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-        />
+        <TaskUpdate task={selectedTask} onClose={() => setSelectedTask(null)} />
       )}
     </div>
   );

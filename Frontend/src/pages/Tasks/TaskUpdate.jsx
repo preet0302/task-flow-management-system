@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateTask, deleteTask } from "../../redux/slices/taskSlice";
+import { updateTask } from "../../redux/slices/taskSlice";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const TaskUpdate = ({ task, onClose }) => {
+  const { loading } = useSelector((state) => state.task);
+
   const dispatch = useDispatch();
 
   const [form, setForm] = useState({
@@ -17,76 +21,98 @@ const TaskUpdate = ({ task, onClose }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
-    dispatch(
-      updateTask({
-        id: task._id,
-        data: {
-          ...form,
-          dueDate: form.date,
-        },
-      })
-    );
+    const finalData = {
+      title: form.title,
+      description: form.description,
+      status: form.status,
+      priority: form.priority,
+      dueDate: form.date,
+    };
 
-    onClose();
+    const res = await dispatch(updateTask({ id: task._id, data: finalData }));
+
+    if (res.meta.requestStatus === "fulfilled") {
+      toast.success("Task updated successfully ✅");
+      onClose();
+    } else {
+      toast.error(res.payload || "Update failed ❌");
+    }
   };
 
-  const handleDelete = () => {
-    dispatch(deleteTask(task._id));
-    onClose();
-  };
+  // const handleDelete = () => {
+  //   dispatch(deleteTask(task._id));
+  //   toast.error("Task deleted successfully 🗑️");
+  //   onClose();
+  // };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-      
       <div className="bg-[#0f172a] p-6 rounded-xl w-[400px] border border-white/10">
-        
         <h2 className="text-white text-lg mb-4">Edit Task</h2>
 
         <form onSubmit={handleUpdate} className="space-y-3">
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            className="w-full p-2 bg-[#020617] text-white rounded"
+          />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className="w-full p-2 bg-[#020617] text-white rounded"
+          />
 
-          <input name="title" value={form.title} onChange={handleChange} className="w-full p-2 bg-[#020617] text-white rounded" />
-          <textarea name="description" value={form.description} onChange={handleChange} className="w-full p-2 bg-[#020617] text-white rounded" />
-
-          <select name="status" value={form.status} onChange={handleChange}>
+          <select
+            className="w-full p-2 bg-[#020617] text-white rounded border border-white/10 outline-none"
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+          >
             <option>Pending</option>
             <option>In Progress</option>
             <option>Completed</option>
           </select>
 
-          <select name="priority" value={form.priority} onChange={handleChange}>
+          <select
+            className="w-full p-2 bg-[#020617] text-white rounded border border-white/10 outline-none"
+            name="priority"
+            value={form.priority}
+            onChange={handleChange}
+          >
             <option>Low</option>
             <option>Medium</option>
             <option>High</option>
           </select>
 
-          <input type="date" name="date" value={form.date} onChange={handleChange} />
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+          />
 
-          <div className="flex justify-between mt-4">
-            
-            {/* 🔴 Delete */}
+          <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
-              onClick={handleDelete}
-              className="bg-red-500 px-3 py-1 rounded"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-gray-600/20 text-gray-300 hover:bg-gray-600/30 transition"
             >
-              Delete
+              Cancel
             </button>
 
-            <div className="flex gap-3">
-              <button type="button" onClick={onClose}>
-                Cancel
-              </button>
-
-              <button type="submit" className="bg-purple-600 px-4 py-1 rounded">
-                Update
-              </button>
-            </div>
-
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg bg-purple-600 text-white"
+            >
+              {loading ? "Updating..." : "Update"}
+            </button>
           </div>
-
         </form>
       </div>
     </div>

@@ -18,17 +18,17 @@ const RightPanel = () => {
   const completedPercent = getPercent(completed);
 
   return (
-    <div className="bg-[#0f172a] p-6 rounded-xl">
+    <div className="w-full bg-[#0f172a] p-4 md:p-6 rounded-xl border border-white/10">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">Task Overview</h2>
+        <h2 className="text-base md:text-lg font-semibold">Task Overview</h2>
         <span className="text-sm text-gray-400">This Week</span>
       </div>
 
       {/* Donut */}
       <div className="flex justify-center items-center mb-6">
-        <div className="relative w-40 h-40">
+        <div className="relative w-32 h-32 md:w-40 md:h-40">
 
           {/* 🔥 dynamic conic gradient */}
           <div
@@ -43,16 +43,16 @@ const RightPanel = () => {
           ></div>
 
           {/* Inner */}
-          <div className="absolute inset-[12px] bg-[#0f172a] rounded-full flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold">{total}</span>
-            <span className="text-sm text-gray-400">Total</span>
+          <div className="absolute inset-[10px] md:inset-[12px] bg-[#0f172a] rounded-full flex flex-col items-center justify-center">
+            <span className="text-xl md:text-2xl font-bold">{total}</span>
+            <span className="text-xs md:text-sm text-gray-400">Total</span>
           </div>
 
         </div>
       </div>
 
       {/* Stats */}
-      <div className="space-y-3 text-sm">
+      <div className="space-y-3 text-xs md:text-sm">
         <div className="flex justify-between">
           <span className="flex items-center gap-2">
             <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>

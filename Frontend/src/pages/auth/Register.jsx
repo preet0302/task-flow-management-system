@@ -3,105 +3,225 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { register as registerUser } from "../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm();
 
-  const registerHandler = (data) => {
-    dispatch(registerUser(data)).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        navigate("/login");
-      }
-    });
-    reset();
-  };
-  return (
-    <div className="h-screen w-full bg-[#020617] flex items-center justify-center px-6">
-      {/* MAIN WRAPPER */}
-      <div className="w-full max-w-6xl flex gap-6">
-        {/* LEFT SIDE */}
-        <div className="w-1/2 flex flex-col justify-between">
-          <div>
-            <h1 className="text-white text-lg mb-6">TaskFlow</h1>
+  const registerHandler = async (data) => {
+    data.name = data.name.trim();
+    data.email = data.email.trim();
+     const { confirmPassword, ...finalData } = data;
+    setLoading(true);
+    const res = await dispatch(registerUser(finalData));
+    setLoading(false);
 
-            <h2 className="text-3xl font-semibold text-white mb-3">
+    if (res.meta.requestStatus === "fulfilled") {
+      toast.success("Account created successfully 🎉");
+      navigate("/login");
+      reset();
+    } else {
+      toast.error(res.payload || "Registration failed ❌");
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-[#020617] flex items-center justify-center px-4">
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6">
+        {/* LEFT (same as login) */}
+        <div className="hidden lg:flex w-1/2 flex-col justify-between h-full py-10">
+          <div className="px-10">
+            <h1 className="text-purple-500 text-base mb-4">
+              Task Management System
+            </h1>
+
+            <h2 className="text-4xl font-semibold text-white mb-3 leading-tight">
               Create Account 🚀
             </h2>
 
-            <p className="text-gray-400 mb-10">
+            <p className="text-gray-400 text-base max-w-md">
               Join us and start organizing your tasks efficiently.
             </p>
           </div>
 
-          {/* IMAGE */}
-          <img src={registerImg} alt="register" className="w-full max-w-md" />
+          <img src={registerImg} className="w-full max-w-md" />
         </div>
 
-        {/* RIGHT SIDE CARD */}
-        <div className="w-1/2 bg-[#0f172a] border border-white/10 rounded-2xl p-8">
-          <h2 className="text-white text-xl mb-6">Create your account</h2>
+        {/* RIGHT FORM */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center">
+          <div className="w-full max-w-md bg-[#0f172a] border border-white/10 rounded-2xl p-8 md:p-10 min-h-[520px] flex flex-col justify-center">
+            <h2 className="text-white text-xl mb-6">Create your account</h2>
 
-          <form
-            onSubmit={handleSubmit(registerHandler)}
-            className="flex flex-col gap-3"
-          >
-            <input
-              {...register("name", {
-                required: "name is required",
-                pattern: {
-                  value: /^[A-Za-z\s]+$/,
-                  message: "Only letter allowed (no numbers)",
-                },
-              })}
-              type="text"
-              placeholder="Enter your name"
-            />
-            <p>{errors?.name?.message}</p>
+            <form
+              onSubmit={handleSubmit(registerHandler)}
+              className="flex flex-col gap-5"
+            >
+              {/* NAME */}
+              <div>
+                <input
+                  {...register("name", {
+                    required: "Name is required",
+                    minLength: {
+                      value: 3,
+                      message: "Name must be at least 3 characters",
+                    },
+                    pattern: {
+                      value: /^[A-Za-z\s]+$/,
+                      message: "Only letters allowed",
+                    },
+                  })}
+                  type="text"
+                  placeholder="Enter your name"
+                  className={`w-full p-3 rounded-lg border ${
+                    errors.name ? "border-red-500" : "border-white/10"
+                  } bg-[#020617]`}
+                />
+                <p className="text-pink-400 text-xs mt-1">
+                  {errors?.name?.message}
+                </p>
+              </div>
 
-            <input
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email",
-                },
-              })}
-              type="email"
-              placeholder="email@example.com"
-            />
-            <p>{errors?.email?.message}</p>
+              {/* EMAIL */}
+              <div>
+                <input
+                  {...register("email", {
+                    required: "Email is required",
 
-            <p>{errors?.phone?.message}</p>
-            <input
-              {...register("password", {
-                required: "password is required",
-                pattern: {
-                  value: /^(?=.*[A-Za-z])(?=.*[0-9]).{6,}$/,
-                  message: "Invalid Password",
-                },
-              })}
-              type="password"
-              placeholder="**********"
-            />
-            <p>{errors?.password?.message}</p>
-            <button className="bg-blue-400  p-2">Regitser</button>
-            <h1>
-              have an Account ?
-              <span
-                onClick={() => navigate("/login")}
-                className="text-blue-500 cursor-pointer"
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/,
+                      message: "Enter a valid email address",
+                    },
+
+                    validate: (value) => {
+                      if (value.length > 50) {
+                        return "Email too long";
+                      }
+                      if (value.includes(" ")) {
+                        return "Email should not contain spaces";
+                      }
+
+                      if (value.includes("..")) {
+                        return "Email cannot contain consecutive dots";
+                      }
+
+                      return true;
+                    },
+                  })}
+                  type="email"
+                  placeholder="email@example.com"
+                  className={`w-full p-3 rounded-lg border ${
+                    errors.email ? "border-red-500" : "border-white/10"
+                  } bg-[#020617]`}
+                />
+                <p className="text-pink-400 text-xs mt-1">
+                  {errors?.email?.message}
+                </p>
+              </div>
+
+              {/* PASSWORD */}
+              {/* PASSWORD */}
+              <div className="relative">
+                <input
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
+                    validate: (value) => {
+                      if (!/[A-Za-z]/.test(value)) {
+                        return "Must contain at least 1 letter";
+                      }
+                      if (!/[0-9]/.test(value)) {
+                        return "Must contain at least 1 number";
+                      }
+                      return true;
+                    },
+                  })}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="**********"
+                  className={`w-full p-3 rounded-lg border ${
+                    errors.password ? "border-red-500" : "border-white/10"
+                  } bg-[#020617]`}
+                />
+                {watch("password")?.length > 0 && !errors.password && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Must contain letters & numbers (min 6 chars)
+                  </p>
+                )}
+
+                {/* 👁 ICON */}
+                <span
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 cursor-pointer text-gray-400"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+
+                <p className="text-pink-400 text-xs mt-1">
+                  {errors?.password?.message}
+                </p>
+              </div>
+              <div className="relative">
+                <input
+                  {...register("confirmPassword", {
+                    required: "Confirm password is required",
+                    validate: (value) =>
+                      value === watch("password") || "Passwords do not match",
+                  })}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm password"
+                  className={`w-full p-3 rounded-lg border ${
+                    errors.confirmPassword
+                      ? "border-red-500"
+                      : "border-white/10"
+                  } bg-[#020617]`}
+                />
+                <span
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 cursor-pointer text-gray-400"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+
+                <p className="text-pink-400 text-xs mt-1">
+                  {errors?.confirmPassword?.message}
+                </p>
+              </div>
+
+              {/* BUTTON */}
+              <button
+                disabled={loading}
+                className="p-3 bg-gradient-to-r from-purple-600 to-pink-500 w-full rounded-lg"
               >
-                login
-              </span>
-            </h1>
-          </form>
+                {loading ? "Creating..." : "Register"}
+              </button>
+
+              {/* LOGIN */}
+              <p className="text-sm text-gray-400 text-center">
+                Have an account?{" "}
+                <span
+                  onClick={() => navigate("/login")}
+                  className="text-purple-400 cursor-pointer"
+                >
+                  Login
+                </span>
+              </p>
+            </form>
+          </div>
         </div>
       </div>
     </div>

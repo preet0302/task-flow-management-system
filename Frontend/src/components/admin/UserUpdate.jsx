@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateUser, deleteUser } from "../../redux/slices/usersSlice";
+import { updateUser } from "../../redux/slices/usersSlice";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const UserUpdate = ({ user, onClose }) => {
+  const { loading } = useSelector((state) => state.users || {});
   const dispatch = useDispatch();
 
   const [form, setForm] = useState({
@@ -16,34 +19,30 @@ const UserUpdate = ({ user, onClose }) => {
   };
 
   // 🔥 UPDATE
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
-    dispatch(
+    const res = await dispatch(
       updateUser({
         id: user._id,
         data: form,
-      })
+      }),
     );
 
-    onClose();
-  };
-
-  // 🔥 DELETE
-  const handleDelete = () => {
-    dispatch(deleteUser(user._id));
-    onClose();
+    if (res.meta.requestStatus === "fulfilled") {
+      toast.success("User updated successfully ✅");
+      onClose();
+    } else {
+      toast.error(res.payload || "Update failed ❌");
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-      
       <div className="bg-[#0f172a] p-6 rounded-xl w-[400px] border border-white/10 text-white">
-        
         <h2 className="text-lg mb-4">Edit User</h2>
 
         <form onSubmit={handleUpdate} className="space-y-4">
-
           {/* Name */}
           <input
             type="text"
@@ -74,32 +73,23 @@ const UserUpdate = ({ user, onClose }) => {
           </select>
 
           {/* Buttons */}
-          <div className="flex justify-between mt-4">
-
-            {/* Delete */}
+          <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
-              onClick={handleDelete}
-              className="bg-red-500 px-3 py-1 rounded"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-gray-600/20 text-gray-300 hover:bg-gray-600/30 transition"
             >
-              Delete
+              Cancel
             </button>
 
-            <div className="flex gap-3">
-              <button type="button" onClick={onClose}>
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                className="bg-purple-600 px-4 py-1 rounded"
-              >
-                Update
-              </button>
-            </div>
-
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg bg-purple-600 text-white"
+            >
+              {loading ? "Updating..." : "Update"}
+            </button>
           </div>
-
         </form>
       </div>
     </div>
