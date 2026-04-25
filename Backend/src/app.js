@@ -3,12 +3,14 @@ const taskRoutes = require("../src/routes/task.routes");
 const authRoutes = require("../src/routes/auth.routes");
 const usersRoutes = require("../src/routes/users.routes");
 const cookieParser = require("cookie-parser");
+const errorMiddleware = require("../src/middleware/error.middleware");
+
 
 const cors = require("cors");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5173",
     credentials: true,
   }),
 );
@@ -18,6 +20,6 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/users", usersRoutes);
-
+app.use(errorMiddleware);
 
 module.exports = app;

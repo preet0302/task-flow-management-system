@@ -1,63 +1,76 @@
 const User = require("../models/users.model");
+const AppError = require("../utils/AppError");
 
-// 🔥 GET ALL USERS (admin only)
-const getUsers = async (req, res) => {
+// GET USERS
+const getUsers = async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not allowed" });
+      return next(new AppError("Not allowed", 403));
     }
 
-    const users = await User.find().select("-password"); // 🔥 hide password
-    res.json(users);
+    const users = await User.find().select("-password");
+
+    res.status(200).json({
+      success: true,
+      users,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// 🔥 DELETE USER (admin only)
-const deleteUser = async (req, res) => {
+// DELETE USER
+const deleteUser = async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not allowed" });
+      return next(new AppError("Not allowed", 403));
+    }
+    if (req.user._id.toString() === req.params.id) {
+      return next(new AppError("You cannot delete yourself", 400));
     }
 
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return next(new AppError("User not found", 404));
     }
 
     await User.findByIdAndDelete(req.params.id);
 
-    res.json({ message: "User deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// 🔥 UPDATE USER (admin only)
-const updateUser = async (req, res) => {
+// UPDATE USER
+const updateUser = async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not allowed" });
+      return next(new AppError("Not allowed", 403));
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).select("-password");
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return next(new AppError("User not found", 404));
     }
 
-    res.json(updatedUser);
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      user: updatedUser,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
-}
-
+};
 
 module.exports = {
   getUsers,

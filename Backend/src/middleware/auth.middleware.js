@@ -1,33 +1,29 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/users.model");
+const User = require("../models/users.model");
+const AppError = require("../utils/AppError");
 
 async function authMiddleware(req, res, next) {
-  const { token } = req.cookies;
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized access, please login first",
-    });
-  }
-
   try {
+    const { token } = req.cookies;
+
+    if (!token) {
+      return next(new AppError("Unauthorized, please login", 401));
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-    const user = await userModel.findById(decoded.id);
+    const user = await User.findById(decoded.id);
 
     if (!user) {
-      return res.status(401).json({
-        message: "User not found",
-      });
+      return next(new AppError("User not found", 401));
     }
 
     req.user = user;
     next();
+
   } catch (err) {
-    return res.status(401).json({
-      message: "Invalid token, please login again",
-    });
+    return next(new AppError("Invalid token, please login again", 401));
   }
 }
 
-module.exports = authMiddleware
+module.exports = authMiddleware;

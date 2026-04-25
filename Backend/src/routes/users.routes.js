@@ -1,5 +1,3 @@
-
-
 const express = require("express");
 const router = express.Router();
 
@@ -11,13 +9,16 @@ const {
   updateUser,
 } = require("../controllers/users.controller");
 
-// 🔥 Get all users (admin only)
+// 🔥 IMPORT VALIDATION
+const { userUpdateValidation } = require("../middleware/validator");
+
+// GET USERS
 router.get("/", authMiddleware, getUsers);
 
-// 🔥 Delete user (admin only)
+// DELETE USER
 router.delete("/:id", authMiddleware, deleteUser);
 
-// 🔥 Update user (admin only)
-router.patch("/:id", authMiddleware, updateUser);
+// UPDATE USER (with validation)
+router.patch("/:id", authMiddleware, userUpdateValidation, updateUser);
 
 module.exports = router;

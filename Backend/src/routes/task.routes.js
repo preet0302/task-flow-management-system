@@ -10,9 +10,13 @@ const {
 
 const authMiddleware = require("../middleware/auth.middleware");
 
-router.post("/", authMiddleware, createTask);
+// 🔥 IMPORT VALIDATION
+const { taskValidation } = require("../middleware/validator");
+
+// 🔥 APPLY VALIDATION
+router.post("/", authMiddleware, taskValidation, createTask);
 router.get("/", authMiddleware, getTasks);
-router.patch("/:id", authMiddleware, updateTask);
+router.patch("/:id", authMiddleware, taskValidation, updateTask);
 router.delete("/:id", authMiddleware, deleteTask);
 
 module.exports = router;

@@ -1,96 +1,113 @@
 const Task = require("../models/task.model");
+const AppError = require("../utils/AppError");
 
 // CREATE
-async function createTask(req, res) {
+async function createTask(req, res, next) {
   try {
     const task = await Task.create({
       ...req.body,
       user: req.user._id,
     });
-    res.json(task);
+
+    res.status(201).json({
+      success: true,
+      message: "Task created successfully",
+      task,
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 
-// GET (ROLE BASED)
-async function getTasks(req, res) {
+// GET
+async function getTasks(req, res, next) {
   try {
     let tasks;
 
     if (req.user.role === "admin") {
-      tasks = await Task.find();
+     tasks = await Task.find().populate("user", "name email");
     } else {
       tasks = await Task.find({ user: req.user._id });
     }
 
-    res.json(tasks);
+    res.status(200).json({
+      success: true,
+      tasks,
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 
 // UPDATE
-async function updateTask(req, res) {
+async function updateTask(req, res, next) {
   try {
     const task = await Task.findById(req.params.id);
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return next(new AppError("Task not found", 404));
     }
 
-    // 🔐 ownership check
     if (
       req.user.role !== "admin" &&
       task.user.toString() !== req.user._id.toString()
     ) {
-      return res.status(403).json({ message: "Not allowed" });
+      return next(new AppError("Not allowed", 403));
     }
 
-    // 🔄 update
     const updatedTask = await Task.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true } // 🔥 important
+      { returnDocument: "after", runValidators: true }
     );
 
-    res.json(updatedTask);
+    res.status(200).json({
+      success: true,
+      message: "Task updated successfully",
+      task: updatedTask,
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
 
 // DELETE
-async function deleteTask(req, res) {
+async function deleteTask(req, res, next) {
   try {
     const task = await Task.findById(req.params.id);
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return next(new AppError("Task not found", 404));
     }
 
-    // 🔐 ownership check
     if (
       req.user.role !== "admin" &&
       task.user.toString() !== req.user._id.toString()
     ) {
-      return res.status(403).json({ message: "Not allowed" });
+      return next(new AppError("Not allowed", 403));
     }
 
     await Task.findByIdAndDelete(req.params.id);
 
-    res.json({ message: "Task deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Task deleted successfully",
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 }
+
 module.exports = {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
 };
-
 
 
 // async function createTask(req, res) {
