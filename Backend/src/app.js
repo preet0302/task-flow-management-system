@@ -12,6 +12,9 @@ const app = express();
 app.use(
   cors({
     origin: "https://task-flow-management-system-preet0302s-projects.vercel.app",
+    "https://task-flow-management-system-3obqba3o6-preet0302s-projects.vercel.app",
+    
+ 
     credentials: true,
   })
 );
