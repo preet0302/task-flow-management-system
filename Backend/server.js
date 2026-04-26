@@ -1,6 +1,7 @@
 require('dotenv').config()
 const app = require('./src/app')
 const connectedtodb = require('./src/db/db')
+const cors = require("cors");
 
 
 app.use(cors({ origin: true, credentials: true }))
