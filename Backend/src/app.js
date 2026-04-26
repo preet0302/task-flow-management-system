@@ -5,12 +5,11 @@ const usersRoutes = require("../src/routes/users.routes");
 const cookieParser = require("cookie-parser");
 const errorMiddleware = require("../src/middleware/error.middleware");
 
-
 const cors = require("cors");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://task-flow-management-system.vercel.app",
     credentials: true,
   }),
 );

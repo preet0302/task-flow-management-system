@@ -8,7 +8,6 @@ async function registerController(req, res, next) {
   try {
     const { name, email, password } = req.body;
 
-    
     if (!name || !email || !password) {
       return next(new AppError("All fields are required", 400));
     }
@@ -37,8 +36,8 @@ async function registerController(req, res, next) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "None",
       path: "/",
     });
 
@@ -46,7 +45,6 @@ async function registerController(req, res, next) {
       success: true,
       message: "User Created Successfully",
     });
-
   } catch (err) {
     next(err);
   }
@@ -57,7 +55,6 @@ async function loginController(req, res, next) {
   try {
     const { email, password } = req.body;
 
-   
     if (!email || !password) {
       return next(new AppError("All fields are required", 400));
     }
@@ -65,13 +62,13 @@ async function loginController(req, res, next) {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return next(new AppError("Invalid email or password", 401)); 
+      return next(new AppError("Invalid email or password", 401));
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return next(new AppError("Invalid email or password", 401)); 
+      return next(new AppError("Invalid email or password", 401));
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
@@ -80,8 +77,8 @@ async function loginController(req, res, next) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "None",
       path: "/",
     });
 
@@ -95,7 +92,6 @@ async function loginController(req, res, next) {
         role: user.role,
       },
     });
-
   } catch (err) {
     next(err);
   }
@@ -114,7 +110,6 @@ async function getCurrentUser(req, res, next) {
       success: true,
       user,
     });
-
   } catch (err) {
     next(err);
   }
@@ -125,8 +120,8 @@ async function logoutUser(req, res, next) {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "None",
       path: "/",
     });
 
@@ -134,7 +129,6 @@ async function logoutUser(req, res, next) {
       success: true,
       message: "Logged out successfully",
     });
-
   } catch (err) {
     next(err);
   }
@@ -151,7 +145,6 @@ const updateProfile = async (req, res, next) => {
       return next(new AppError("User not found", 404));
     }
 
-    
     if (req.body.name && req.body.name.trim().length < 2) {
       return next(new AppError("Name must be at least 2 characters", 400));
     }
@@ -170,7 +163,6 @@ const updateProfile = async (req, res, next) => {
         role: user.role,
       },
     });
-
   } catch (err) {
     next(err);
   }
