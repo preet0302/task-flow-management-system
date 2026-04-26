@@ -8,15 +8,23 @@ const cors = require("cors");
 
 const app = express();
 
+const allowedOrigins = [
+  "https://task-flow-management-system-preet0302s-projects.vercel.app",
+  "https://task-flow-management-system-3obqba3o6-preet0302s-projects.vercel.app",
+];
 
 app.use(
   cors({
-    origin: "https://task-flow-management-system-preet0302s-projects.vercel.app",
-    "https://task-flow-management-system-3obqba3o6-preet0302s-projects.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
-
 
 
 
