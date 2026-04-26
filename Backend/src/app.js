@@ -11,10 +11,7 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://task-flow-management-system.vercel.app"
-    ],
+    origin: true,
     credentials: true,
   })
 );

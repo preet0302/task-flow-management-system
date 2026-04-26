@@ -126,8 +126,8 @@ async function logoutUser(req, res, next) {
 
     res.clearCookie("token", {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "None" : "Lax",
+      secure: true,
+      sameSite: "None",
       path: "/",
     });
 
