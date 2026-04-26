@@ -68,7 +68,7 @@ NODE_ENV=development
 4. Start the project  
 
 Backend:
-npm run dev  
+npm start   
 
 Frontend:
 npm run dev  
