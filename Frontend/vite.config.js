@@ -14,4 +14,8 @@ export default defineConfig({
       },
     },
   },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> dd48ba2 (fix: auth cookie issue, added proxy and CORS fix)

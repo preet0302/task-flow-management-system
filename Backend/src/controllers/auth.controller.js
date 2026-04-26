@@ -38,8 +38,8 @@ async function registerController(req, res, next) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "None" : "Lax",
+      secure: true, // force true
+      sameSite: "None", // force None
       path: "/",
     });
 
