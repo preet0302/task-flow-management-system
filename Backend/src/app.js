@@ -9,9 +9,11 @@ const cors = require("cors");
 const app = express();
 app.use(
   cors({
-    origin: "https://task-flow-management-system.vercel.app",
+    origin: [
+      "https://task-flow-management-system.vercel.app",
+    ],
     credentials: true,
-  }),
+  })
 );
 app.use(cookieParser());
 app.use(express.json());
