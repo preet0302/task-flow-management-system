@@ -8,36 +8,18 @@ const cors = require("cors");
 
 const app = express();
 
-const allowedOrigins = [
-  "https://task-flow-management-system-preet0302s-projects.vercel.app",
-  "https://task-flow-management-system-3obqba3o6-preet0302s-projects.vercel.app",
-  "https://task-flow-management-system-9koiz1r2z-preet0302s-projects.vercel.app"
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
-
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(express.json());
 
-// ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/users", usersRoutes);
 
-// ERROR HANDLER
 app.use(errorMiddleware);
 
 module.exports = app;
