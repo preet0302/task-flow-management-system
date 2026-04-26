@@ -11,6 +11,7 @@ app.use(
   cors({
     origin: [
       "https://task-flow-management-system.vercel.app",
+      "https://task-flow-management-system-gqc7hcrc6-preet0302s-projects.vercel.app"
     ],
     credentials: true,
   })
