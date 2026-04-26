@@ -77,14 +77,14 @@ async function loginController(req, res, next) {
       expiresIn: "1d",
     });
 
-    const isProd = process.env.NODE_ENV === "production";
-
-    res.cookie("token", token, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "None" : "Lax",
+      secure: true,
+      sameSite: "None",
       path: "/",
-    });
+    };
+
+    res.cookie("token", token, cookieOptions);
 
     return res.status(200).json({
       success: true,
