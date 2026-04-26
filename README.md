@@ -2,6 +2,10 @@
 
 This is a full-stack task management application where users can create, update, and manage their daily tasks efficiently. The project is built to practice real-world concepts like authentication, state management, and API handling.
 
+##🌐 Live Demo
+- Frontend: https://task-frontend-qyjb.onrender.com
+- Backend: https://task-backend-1-rija.onrender.com
+
 ## 🚀 Features
 
 ### Authentication
@@ -46,7 +50,7 @@ This is a full-stack task management application where users can create, update,
 ## ⚙️ Setup Instructions
 
 1. Clone the repository  
-git clone <your-repo-link>
+git clone https://github.com/preet0302/task-flow-management-system.git
 
 2. Install dependencies  
 
@@ -74,7 +78,7 @@ Frontend:
 npm run dev  
 
 ## Deployment
-The frontend can be deployed on Vercel and the backend on Render.
+Frontend and Backend are deployed on Render.
 
 ## Note
 The `.env` file is not included in this repository for security reasons. Please add your own environment variables before running the project.
