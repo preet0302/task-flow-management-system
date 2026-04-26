@@ -18,7 +18,7 @@ const RightPanel = () => {
   const completedPercent = getPercent(completed);
 
   return (
-    <div className="w-full bg-[#0f172a] p-4 md:p-6 rounded-xl border border-white/10">
+    <div className="w-full bg-[#0f172a] p-4 md:p-6 rounded-xl border border-white/10 overflow-y-auto">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
