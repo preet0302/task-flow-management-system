@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 
 const api = axios.create({
-  baseURL: "/api",   
+ baseURL: "https://task-backend-1-rija.onrender.com/api", 
   withCredentials: true,
 });
 
