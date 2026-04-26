@@ -11,6 +11,7 @@ const app = express();
 const allowedOrigins = [
   "https://task-flow-management-system-preet0302s-projects.vercel.app",
   "https://task-flow-management-system-3obqba3o6-preet0302s-projects.vercel.app",
+  "https://task-flow-management-system-9koiz1r2z-preet0302s-projects.vercel.app"
 ];
 
 app.use(
