@@ -11,15 +11,12 @@ const app = express();
 
 app.use(
   cors({
-    origin: true, 
+    origin: "https://task-flow-management-system-preet0302s-projects.vercel.app",
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 
-app.options(/.*/, cors());
 
 app.use(cookieParser());
 app.use(express.json());

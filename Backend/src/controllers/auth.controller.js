@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const AppError = require("../utils/AppError");
 
-//REGISTER
+// REGISTER
 async function registerController(req, res, next) {
   try {
     const { name, email, password } = req.body;
@@ -34,10 +34,12 @@ async function registerController(req, res, next) {
       expiresIn: "1d",
     });
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
       path: "/",
     });
 
@@ -50,7 +52,7 @@ async function registerController(req, res, next) {
   }
 }
 
-//LOGIN
+// LOGIN
 async function loginController(req, res, next) {
   try {
     const { email, password } = req.body;
@@ -75,10 +77,12 @@ async function loginController(req, res, next) {
       expiresIn: "1d",
     });
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
       path: "/",
     });
 
@@ -97,7 +101,7 @@ async function loginController(req, res, next) {
   }
 }
 
-//CURRENT USER
+// CURRENT USER
 async function getCurrentUser(req, res, next) {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -115,13 +119,15 @@ async function getCurrentUser(req, res, next) {
   }
 }
 
-//LOGOUT
+// LOGOUT
 async function logoutUser(req, res, next) {
   try {
+    const isProd = process.env.NODE_ENV === "production";
+
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
       path: "/",
     });
 
@@ -134,7 +140,7 @@ async function logoutUser(req, res, next) {
   }
 }
 
-//UPDATE PROFILE
+// UPDATE PROFILE
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
