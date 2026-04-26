@@ -7,11 +7,17 @@ const errorMiddleware = require("../src/middleware/error.middleware");
 const cors = require("cors");
 
 const app = express();
+app.set("trust proxy", 1);
 
-app.use(cors({
-  origin: true,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://task-flow-management-system.vercel.app"
+    ],
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
