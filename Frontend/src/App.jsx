@@ -1,39 +1,34 @@
 import AppRoutes from "./routers/AppRoutes";
-import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import api from "./api/axios";
 import { setAuth, setUser, setLoading } from "./redux/slices/authSlice";
+import Loader from "./components/Loader";
 
-function App() {
+const App = () => {
+  const { loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const hasFetched = useRef(false);
 
- useEffect(() => {
-  if (hasFetched.current) return;
-  hasFetched.current = true;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/auth/me");
+        dispatch(setAuth(true));
+        dispatch(setUser(res.data.user));
+      } catch (err) {
+        dispatch(setAuth(false));
+        dispatch(setUser(null));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
 
-  const fetchUser = async () => {
-    try {
-      const res = await api.get("/auth/me");
+    fetchUser();
+  }, [dispatch]);
 
-      dispatch(setAuth(true));
-      dispatch(setUser(res.data.user));
-    } catch (err) {
-      dispatch(setAuth(false));
-      dispatch(setUser(null));
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+  if (loading) return <Loader />;
 
-  fetchUser();
-}, []);
-
-  return (
-    <div>
-      <AppRoutes />
-    </div>
-  );
-}
+  return <AppRoutes />;
+};
 
 export default App;

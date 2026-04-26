@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, deleteUser } from "../../redux/slices/usersSlice";
+import {
+  fetchUsers,
+  deleteUser,
+  setLoading,
+  setError,
+} from "../../redux/slices/usersSlice";
 import UserUpdate from "./UserUpdate";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../../redux/slices/authSlice";
 import { toast } from "react-toastify";
+import api from "../../api/axios";
 
 const AdminUsers = () => {
   const dispatch = useDispatch();
@@ -14,8 +20,23 @@ const AdminUsers = () => {
 
   const [selectedUser, setSelectedUser] = useState(null);
 
+ 
   useEffect(() => {
-    dispatch(fetchUsers());
+    const loadUsers = async () => {
+      try {
+        dispatch(setLoading(true));
+
+        const res = await api.get("/users");
+
+        dispatch(fetchUsers(res.data.users));
+      } catch (err) {
+        dispatch(setError(err.message));
+      } finally {
+      dispatch(setLoading(false)); 
+    }
+    };
+
+    loadUsers();
   }, [dispatch]);
 
   return (
@@ -30,7 +51,7 @@ const AdminUsers = () => {
 
       {/* Table */}
       <div className="bg-[#0f172a] rounded-xl border border-white/10 overflow-hidden">
-        {/* Header (desktop only) */}
+        {/* Header */}
         <div className="hidden md:grid grid-cols-6 p-4 text-gray-400 text-sm border-b border-white/10">
           <span>Name</span>
           <span>Email</span>
@@ -47,19 +68,19 @@ const AdminUsers = () => {
             className="flex flex-col gap-1.5 md:grid md:grid-cols-6 p-3 md:p-4 text-[11px] md:text-sm border-b border-white/10"
           >
             {/* Name */}
-            <div className="flex justify-between items-center md:block py-0.5">
+            <div className="flex justify-between md:block">
               <span className="text-gray-500 md:hidden">Name</span>
               <span className="truncate">{user.name}</span>
             </div>
 
             {/* Email */}
-            <div className="flex justify-between items-center md:block py-0.5">
+            <div className="flex justify-between md:block">
               <span className="text-gray-500 md:hidden">Email</span>
               <span className="truncate">{user.email}</span>
             </div>
 
             {/* Role */}
-            <div className="flex justify-between items-center md:block py-0.5">
+            <div className="flex justify-between md:block">
               <span className="text-gray-500 md:hidden">Role</span>
               <span
                 className={`px-2 py-1 text-xs rounded w-fit ${
@@ -73,13 +94,13 @@ const AdminUsers = () => {
             </div>
 
             {/* Status */}
-            <div className="flex justify-between items-center md:block py-0.5">
+            <div className="flex justify-between md:block">
               <span className="text-gray-500 md:hidden">Status</span>
               <span className="text-green-400">Active</span>
             </div>
 
             {/* Date */}
-            <div className="flex justify-between items-center md:block py-0.5">
+            <div className="flex justify-between md:block">
               <span className="text-gray-500 md:hidden">Joined</span>
               <span>
                 {user.createdAt
@@ -89,28 +110,35 @@ const AdminUsers = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between items-center md:flex md:gap-2 mt-0.5 md:mt-0">
+            <div className="flex justify-between md:flex md:gap-2">
               <span className="text-gray-500 md:hidden">Actions</span>
 
               <div className="flex gap-2 text-sm">
+                {/* EDIT */}
                 <button onClick={() => setSelectedUser(user)}>✏️</button>
 
+                {/* DELETE  */}
                 <button
                   onClick={async () => {
                     if (window.confirm("Delete user?")) {
-                      const res = await dispatch(deleteUser(user._id));
+                      try {
+                        dispatch(setLoading(true));
 
-                      if (res.meta.requestStatus === "fulfilled") {
+                        await api.delete(`/users/${user._id}`);
+
+                        dispatch(deleteUser(user._id));
+
                         toast.success("User deleted successfully 🗑️");
 
-                        // ❌ fetchUsers hata diya (Redux already update kar raha)
-
-                        if (currentUser && user._id === currentUser._id) {
+                        if (
+                          currentUser &&
+                          user._id === currentUser._id
+                        ) {
                           dispatch(setUser(null));
                           navigate("/login");
                         }
-                      } else {
-                        toast.error(res.payload || "Delete failed ❌");
+                      } catch (err) {
+                        toast.error("Delete failed ❌");
                       }
                     }
                   }}
@@ -123,12 +151,25 @@ const AdminUsers = () => {
         ))}
       </div>
 
-      {/* Modal */}
+      
       {selectedUser && (
-        <UserUpdate user={selectedUser} onClose={() => setSelectedUser(null)} />
+        <UserUpdate
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+        />
       )}
     </div>
   );
 };
 
 export default AdminUsers;
+
+
+
+
+
+
+
+
+
+

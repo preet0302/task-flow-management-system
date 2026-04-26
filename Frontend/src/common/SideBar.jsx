@@ -11,38 +11,39 @@ import {
   FiUser,
 } from "react-icons/fi";
 
-const SideBar = () => {
+const SideBar = ({ closeSidebar }) => { 
   const { user, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // 🔥 Loading state
   if (loading) {
     return <div className="text-white p-4">Loading...</div>;
   }
 
-  // 🔥 Logout
-  // 🔥 Logout
   const handleLogout = async () => {
-    const res = await dispatch(logoutAsync());
+    try {
+      const res = await dispatch(logoutAsync());
 
-    if (res.meta.requestStatus === "fulfilled") {
-      toast.success("Logout successfully 👋");
-      navigate("/login");
-    } else {
-      toast.error("Logout failed ❌");
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Logout successfully 👋");
+        navigate("/login");
+        closeSidebar && closeSidebar(); 
+      } else {
+        toast.error("Logout failed ❌");
+      }
+    } catch (err) {
+      toast.error("Something went wrong ❌");
     }
   };
 
   return (
-    <div
-      className="w-72 h-full flex flex-col justify-between 
+    <div className="w-72 h-full flex flex-col justify-between 
     bg-gradient-to-b from-[#0f172a] to-[#020617] 
-    border-r border-white/10 text-white px-4 py-6"
-    >
-      {/* TOP */}
+    border-r border-white/10 text-white px-4 py-6">
+
       <div className="flex-1">
-        {/* LOGO */}
+
+        {/* logo */}
         <div className="flex items-center gap-3 mb-12 px-4 mt-1">
           <FiClipboard className="text-purple-400 text-xl" />
           <h1 className="text-lg font-semibold text-purple-400">
@@ -50,12 +51,17 @@ const SideBar = () => {
           </h1>
         </div>
 
-        {/* MENU */}
+        {/* menu */}
         <nav className="flex flex-col gap-4 text-sm">
-          {/* COMMON LINKS */}
+
+          
           {[
             { name: "Dashboard", path: "/", icon: <FiHome /> },
-            { name: "My Tasks", path: "/my-task", icon: <FiCheckCircle /> },
+            {
+              name: user?.role === "admin" ? "All Tasks" : "My Tasks",
+              path: "/my-task",
+              icon: <FiCheckCircle />,
+            },
             {
               name: "Create Task",
               path: "/create-task",
@@ -65,6 +71,7 @@ const SideBar = () => {
             <NavLink
               key={item.name}
               to={item.path}
+              onClick={closeSidebar}
               className={({ isActive }) =>
                 `px-4 py-2.5 rounded-md ${
                   isActive
@@ -80,10 +87,11 @@ const SideBar = () => {
             </NavLink>
           ))}
 
-          {/* 🔥 ADMIN ONLY */}
-          {user && user.role === "admin" && (
+          {/* admin*/}
+          {user?.role === "admin" && (
             <NavLink
               to="/admin/users"
+              onClick={closeSidebar} 
               className={({ isActive }) =>
                 `px-4 py-2.5 rounded-md ${
                   isActive
@@ -101,9 +109,10 @@ const SideBar = () => {
             </NavLink>
           )}
 
-          {/* PROFILE */}
+          {/* profile */}
           <NavLink
             to="/profile"
+            onClick={closeSidebar} 
             className={({ isActive }) =>
               `px-4 py-2.5 rounded-md ${
                 isActive
@@ -118,7 +127,7 @@ const SideBar = () => {
             </div>
           </NavLink>
 
-          {/* LOGOUT */}
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className="mt-4 ml-2 bg-red-500 hover:bg-red-600 px-5 py-2 rounded-lg text-sm w-fit"
@@ -128,11 +137,16 @@ const SideBar = () => {
         </nav>
       </div>
 
-      {/* BOTTOM USER */}
+      {/* Bottom User  */}
       <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/10">
-        <NavLink to="/profile" className="flex items-center gap-3">
+        <NavLink
+          to="/profile"
+          onClick={closeSidebar} 
+          className="flex items-center gap-3"
+        >
           <img
-            src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.email}`}
+            src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.email || "guest"}`}
+            alt="user"
             className="w-10 h-10 rounded-full"
           />
           <div>
@@ -148,3 +162,6 @@ const SideBar = () => {
 };
 
 export default SideBar;
+
+
+

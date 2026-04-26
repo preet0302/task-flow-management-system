@@ -9,7 +9,7 @@ const RightPanel = () => {
   const inProgress = tasks.filter((t) => t.status === "In Progress").length;
   const completed = tasks.filter((t) => t.status === "Completed").length;
 
-  // 🔥 percentage calc
+ 
   const getPercent = (value) =>
     total === 0 ? 0 : Math.round((value / total) * 100);
 
@@ -30,7 +30,7 @@ const RightPanel = () => {
       <div className="flex justify-center items-center mb-6">
         <div className="relative w-32 h-32 md:w-40 md:h-40">
 
-          {/* 🔥 dynamic conic gradient */}
+         
           <div
             className="w-full h-full rounded-full"
             style={{
@@ -51,7 +51,7 @@ const RightPanel = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Status */}
       <div className="space-y-3 text-xs md:text-sm">
         <div className="flex justify-between">
           <span className="flex items-center gap-2">

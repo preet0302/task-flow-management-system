@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { updateUser } from "../../redux/slices/usersSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUser, setLoading } from "../../redux/slices/usersSlice";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import api from "../../api/axios";
 
 const UserUpdate = ({ user, onClose }) => {
   const { loading } = useSelector((state) => state.users || {});
@@ -18,22 +18,23 @@ const UserUpdate = ({ user, onClose }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 🔥 UPDATE
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    const res = await dispatch(
-      updateUser({
-        id: user._id,
-        data: form,
-      }),
-    );
+    try {
+      dispatch(setLoading(true)); 
 
-    if (res.meta.requestStatus === "fulfilled") {
+      const res = await api.patch(`/users/${user._id}`, form);
+
+      dispatch(updateUser(res.data.user)); 
+
       toast.success("User updated successfully ✅");
       onClose();
-    } else {
-      toast.error(res.payload || "Update failed ❌");
+
+    } catch (err) {
+      toast.error("Update failed ❌");
+    } finally {
+      dispatch(setLoading(false)); 
     }
   };
 
@@ -43,7 +44,7 @@ const UserUpdate = ({ user, onClose }) => {
         <h2 className="text-lg mb-4">Edit User</h2>
 
         <form onSubmit={handleUpdate} className="space-y-4">
-          {/* Name */}
+          
           <input
             type="text"
             name="name"
@@ -52,7 +53,6 @@ const UserUpdate = ({ user, onClose }) => {
             className="w-full p-2 rounded bg-[#020617]"
           />
 
-          {/* Email */}
           <input
             type="email"
             name="email"
@@ -61,7 +61,6 @@ const UserUpdate = ({ user, onClose }) => {
             className="w-full p-2 rounded bg-[#020617]"
           />
 
-          {/* Role */}
           <select
             name="role"
             value={form.role}
@@ -72,12 +71,11 @@ const UserUpdate = ({ user, onClose }) => {
             <option value="admin">Admin</option>
           </select>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-gray-600/20 text-gray-300 hover:bg-gray-600/30 transition"
+              className="px-4 py-2 rounded-lg bg-gray-600/20 text-gray-300"
             >
               Cancel
             </button>
@@ -90,6 +88,7 @@ const UserUpdate = ({ user, onClose }) => {
               {loading ? "Updating..." : "Update"}
             </button>
           </div>
+
         </form>
       </div>
     </div>
@@ -97,3 +96,5 @@ const UserUpdate = ({ user, onClose }) => {
 };
 
 export default UserUpdate;
+
+

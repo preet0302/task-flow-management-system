@@ -22,7 +22,7 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    data.email = data.email.trim()
+    data.email = data.email?.trim();
     setLoading(true);
     const res = await dispatch(login(data));
     setLoading(false);
@@ -39,11 +39,11 @@ const Login = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#020617] flex items-center justify-center px-4">
-      {/* MAIN WRAPPER */}
+     
       <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6">
-        {/* LEFT (hide on mobile) */}
+        {/* LEFT Side Image*/}
         <div className="hidden lg:flex w-1/2 flex-col justify-between h-full py-10">
-          {/* TOP TEXT */}
+          {/* TOP Contnet */}
           <div className="px-10">
             <h1 className="text-purple-500 text-base mb-4">
               Task Management System
@@ -73,6 +73,7 @@ const Login = () => {
               {/* EMAIL */}
               <div>
                 <input
+                  disabled={loading}
                   {...register("email", {
                     required: "Email is required",
 
@@ -85,7 +86,7 @@ const Login = () => {
                       if (value.length > 50) {
                         return "Email too long";
                       }
-                       if (value.includes(" ")) {
+                      if (value.includes(" ")) {
                         return "Email should not contain spaces";
                       }
 
@@ -110,6 +111,7 @@ const Login = () => {
               {/* PASSWORD */}
               <div className="relative">
                 <input
+                  disabled={loading}
                   {...register("password", {
                     required: "Password is required",
                     minLength: {
@@ -132,13 +134,13 @@ const Login = () => {
                     errors.password ? "border-red-500" : "border-white/10"
                   } bg-[#020617]`}
                 />
-                {watch("password")?.length > 0 && !errors.password && (
+                {watch("password") && !errors.password && (
                   <p className="text-xs text-gray-400 mt-1">
                     Must contain letters & numbers (min 6 chars)
                   </p>
                 )}
 
-                {/* 👁 toggle */}
+                {/* Hide Paaword Toggle*/}
                 <span
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 cursor-pointer text-gray-400"
@@ -151,16 +153,14 @@ const Login = () => {
                 </p>
               </div>
 
-              {/* REMEMBER */}
-              <label className="flex items-center gap-2 text-sm text-gray-400">
-                <input type="checkbox" className="accent-purple-500" />
-                Remember me
-              </label>
+              
 
               {/* BUTTON */}
               <button
+                type="submit"
                 disabled={loading}
-                className="p-3 bg-gradient-to-r from-purple-600 to-pink-500 w-full rounded-lg active:scale-98"
+                className="p-3 bg-gradient-to-r from-purple-600 to-pink-500 w-full rounded-lg disabled:opacity-50 disabled:cursor-not-allowed 
+                 active:scale-95 transition hover:scale-[1.02] duration-200"
               >
                 {loading ? "Logging in..." : "Login"}
               </button>

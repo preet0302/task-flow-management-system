@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTasks, deleteTask } from "../../redux/slices/taskSlice";
+import {
+  fetchTasks,
+  deleteTask,
+  setLoading,
+} from "../../redux/slices/taskSlice";
 import TaskUpdate from "./TaskUpdate";
-import { FaEdit, FaTrash, FaTasks } from "react-icons/fa";
+import { FaEdit, FaTrash, FaTasks, FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 
 const getStatusColor = (status) => {
   if (status === "Pending") return "bg-yellow-500/20 text-yellow-400";
@@ -18,6 +24,7 @@ const getPriorityColor = (priority) => {
 };
 
 const TaskList = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { tasks } = useSelector((state) => state.task);
 
@@ -25,29 +32,48 @@ const TaskList = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchTasks());
+    const loadTasks = async () => {
+      try {
+        dispatch(setLoading(true));
+
+        const res = await api.get("/tasks");
+
+        dispatch(fetchTasks(res.data.tasks));
+      } catch (err) {
+        toast.error("Failed to load tasks ❌");
+      }
+       finally {
+      dispatch(setLoading(false)); 
+    }
+    };
+
+    loadTasks();
   }, [dispatch]);
 
-  // 🔥 DELETE WITH CONFIRMATION + LOADING
+ 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this task?")) {
-      setDeletingId(id);
+      try {
+        setDeletingId(id);
+        dispatch(setLoading(true));
 
-      const res = await dispatch(deleteTask(id));
+        await api.delete(`/tasks/${id}`);
 
-      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(deleteTask(id));
+
         toast.success("Task deleted successfully 🗑️");
-      } else {
-        toast.error(res.payload || "Delete failed ❌");
+      } catch (err) {
+        toast.error("Delete failed ❌");
+      } finally {
+        setDeletingId(null);
+        dispatch(setLoading(false))
       }
-
-      setDeletingId(null);
     }
   };
 
   return (
     <div className="p-4 md:p-6 text-white bg-[#020617] h-full space-y-4 md:space-y-6 w-full">
-      {/* 🔥 Header */}
+      
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2">
@@ -59,9 +85,8 @@ const TaskList = () => {
         </div>
       </div>
 
-      {/* 🔥 Table */}
+      {/*  Table */}
       <div className="mt-2 md:mt-4 bg-[#0f172a] rounded-xl border border-white/10 overflow-hidden">
-        {/* Header Row (desktop only) */}
         <div className="hidden md:grid grid-cols-5 p-4 text-gray-400 text-sm border-b border-white/10">
           <span>Title</span>
           <span>Status</span>
@@ -70,12 +95,10 @@ const TaskList = () => {
           <span>Actions</span>
         </div>
 
-        {/* Empty */}
         {tasks.length === 0 && (
           <p className="p-4 text-gray-400">No tasks found</p>
         )}
 
-        {/* Rows */}
         {tasks.map((task) => (
           <div
             key={task._id}
@@ -100,7 +123,9 @@ const TaskList = () => {
             {/* Date */}
             <div className="flex justify-between items-center md:block">
               <span className="text-gray-500 md:hidden">Date</span>
-              <span className="truncate">{task.dueDate?.slice(0, 10)}</span>
+              <span className="truncate">
+                {task.dueDate?.slice(0, 10)}
+              </span>
             </div>
 
             {/* Priority */}
@@ -113,11 +138,18 @@ const TaskList = () => {
               </span>
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-between items-center md:flex md:gap-3 mt-1 md:mt-0">
+            {/*  ACTIONS */}
+            <div className="flex justify-between items-center mt-1 md:mt-0 md:justify-start">
               <span className="text-gray-500 md:hidden">Actions</span>
 
-              <div className="flex items-center gap-2 md:gap-4 text-sm md:text-base md:justify-start">
+              <div className="flex items-center gap-2 md:gap-3 text-sm md:text-base">
+                <button
+                  onClick={() => navigate(`/task/${task._id}`)}
+                  className="px-1.5 py-1 md:px-2 md:py-1 rounded-md text-green-400 hover:bg-green-500/10 transition"
+                >
+                  <FaEye />
+                </button>
+
                 <button
                   onClick={() => setSelectedTask(task)}
                   className="px-1.5 py-1 md:px-2 md:py-1 rounded-md text-blue-400 hover:bg-blue-500/10 transition"
@@ -137,12 +169,22 @@ const TaskList = () => {
         ))}
       </div>
 
-      {/* 🔥 Modal */}
       {selectedTask && (
-        <TaskUpdate task={selectedTask} onClose={() => setSelectedTask(null)} />
+        <TaskUpdate
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+        />
       )}
     </div>
   );
 };
 
 export default TaskList;
+
+
+
+
+
+
+
+

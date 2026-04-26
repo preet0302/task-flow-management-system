@@ -1,26 +1,24 @@
-// features/task/taskService.js
-import API from "../api/axios";
+import api from "../api/axios";
 
-// CREATE
-export const createTaskAPI = async (data) => {
-  const res = await API.post("/tasks", data);
-  return res.data;
+// create task
+export const createTaskAPI = async (payload) => {
+  const { data } = await api.post("/tasks", payload);
+  return data;
 };
 
-// GET
+// get all tasks
 export const getTasksAPI = async () => {
-  const res = await API.get("/tasks");
-  return res.data;
+  const { data } = await api.get("/tasks");
+  return data;
 };
 
-// UPDATE
-export const updateTaskAPI = async ({ id, data }) => {
-  const res = await API.patch(`/tasks/${id}`, data);
-  return res.data;
+// update task
+export const updateTaskAPI = async (id, payload) => {
+  const { data } = await api.patch(`/tasks/${id}`, payload);
+  return data;
 };
 
-// DELETE
+// delete task
 export const deleteTaskAPI = async (id) => {
-  const res = await API.delete(`/tasks/${id}`);
-  return res.data;
+  await api.delete(`/tasks/${id}`);
 };

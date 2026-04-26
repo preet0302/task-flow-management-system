@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createTask } from "../../redux/slices/taskSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { createTask, setLoading } from "../../redux/slices/taskSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import api from "../../api/axios";
 
 const TaskCreate = () => {
   const { loading } = useSelector((state) => state.task);
@@ -26,24 +26,34 @@ const TaskCreate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!task.title.trim()) {
+      return toast.error("Title is required ❌");
+    }
+
     const finalData = {
       ...task,
-      priority: task.priority || "Low", // 🔥 default fix
+      priority: task.priority || "Low",
       dueDate: task.date,
     };
 
     delete finalData.date;
 
-    const res = await dispatch(createTask(finalData));
+    try {
+      dispatch(setLoading(true)); 
 
-    if (res.meta.requestStatus === "fulfilled") {
+      const res = await api.post("/tasks", finalData);
+
+      dispatch(createTask(res.data.task));
+
       toast.success("Task created successfully ✅");
       navigate("/my-task");
-    } else {
-      toast.error(res.payload || "Task creation failed ❌");
+
+    } catch (err) {
+      toast.error("Task creation failed ❌");
+    } finally {
+      dispatch(setLoading(false)); 
     }
 
-    // 🔄 reset form
     setTask({
       title: "",
       description: "",
@@ -64,6 +74,7 @@ const TaskCreate = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+          
           {/* Title */}
           <div>
             <label className="text-xs md:text-sm text-gray-400">Title</label>
@@ -89,8 +100,9 @@ const TaskCreate = () => {
             />
           </div>
 
-          {/* Grid fields */}
+          {/* GRID section*/}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            
             <div>
               <label className="text-xs md:text-sm text-gray-400">Status</label>
               <select
@@ -136,16 +148,17 @@ const TaskCreate = () => {
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* BUTTON */}
           <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2 md:pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-sm"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-sm disabled:opacity-50"
             >
               {loading ? "Creating..." : "Create Task"}
             </button>
           </div>
+
         </form>
       </div>
     </div>
@@ -153,3 +166,8 @@ const TaskCreate = () => {
 };
 
 export default TaskCreate;
+
+
+
+
+

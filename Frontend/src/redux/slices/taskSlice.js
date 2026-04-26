@@ -1,56 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  createTaskAPI,
-  getTasksAPI,
-  updateTaskAPI,
-  deleteTaskAPI,
-} from "../../services/taskService";
-
-// 🔹 GET
-export const fetchTasks = createAsyncThunk("task/get", async (_, thunkAPI) => {
-  try {
-    return await getTasksAPI();
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response?.data?.message);
-  }
-});
-
-// 🔹 CREATE
-export const createTask = createAsyncThunk(
-  "task/create",
-  async (data, thunkAPI) => {
-    try {
-      return await createTaskAPI(data);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message);
-    }
-  },
-);
-
-// 🔹 UPDATE
-export const updateTask = createAsyncThunk(
-  "task/update",
-  async ({ id, data }, thunkAPI) => {
-    try {
-      return await updateTaskAPI({ id, data });
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message);
-    }
-  },
-);
-
-// 🔹 DELETE
-export const deleteTask = createAsyncThunk(
-  "task/delete",
-  async (id, thunkAPI) => {
-    try {
-      await deleteTaskAPI(id);
-      return id;
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message);
-    }
-  },
-);
+import { createSlice } from "@reduxjs/toolkit";
 
 const taskSlice = createSlice({
   name: "task",
@@ -59,57 +7,58 @@ const taskSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      // ✅ pehle addCase
-      .addCase(fetchTasks.fulfilled, (state, action) => {
-        state.tasks = action.payload?.tasks || [];
-        state.loading = false;
-      })
+  reducers: {
+    // FETCH TASKS
+    fetchTasks: (state, action) => {
+      state.tasks = action.payload || [];
+      state.loading = false;
+    },
 
-      .addCase(createTask.fulfilled, (state, action) => {
-        state.tasks.push(action.payload.task);
-        state.loading = false;
-      })
+    // CREATE TASK
+    createTask: (state, action) => {
+      if (action.payload) {
+        state.tasks.push(action.payload);
+      }
+      state.loading = false;
+    },
 
-      .addCase(updateTask.fulfilled, (state, action) => {
-        if (!action.payload?.task) return;
+    // UPDATE TASK
+    updateTask: (state, action) => {
+      const index = state.tasks.findIndex((t) => t._id === action.payload._id);
 
-        const index = state.tasks.findIndex(
-          (t) => t._id === action.payload.task._id,
-        );
+      if (index !== -1) {
+        state.tasks[index] = action.payload;
+      }
 
-        if (index !== -1) {
-          state.tasks[index] = action.payload.task;
-        }
+      state.loading = false;
+    },
 
-        state.loading = false;
-      })
+    // DELETE TASK
+    deleteTask: (state, action) => {
+      state.tasks = state.tasks.filter((t) => t._id !== action.payload);
+      state.loading = false;
+    },
 
-      .addCase(deleteTask.fulfilled, (state, action) => {
-        state.tasks = state.tasks.filter((t) => t._id !== action.payload);
-      })
+    // LOADING
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
 
-      // ✅ baad me matcher
-      .addMatcher(
-        (action) =>
-          action.type.startsWith("task/") && action.type.endsWith("/pending"),
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        },
-      )
-
-      .addMatcher(
-        (action) =>
-          action.type.startsWith("task/") && action.type.endsWith("/rejected"),
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload;
-        },
-      );
+    // ERROR
+    setError: (state, action) => {
+      state.error = action.payload;
+      state.loading = false;
+    },
   },
 });
+
+export const {
+  fetchTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+  setLoading,
+  setError,
+} = taskSlice.actions;
 
 export default taskSlice.reducer;

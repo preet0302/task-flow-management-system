@@ -7,14 +7,14 @@ const Unauthorized = () => {
   return (
     <div className="h-screen w-full bg-[#020617] flex items-center justify-center">
       <div className="relative">
-        {/* IMAGE */}
+       
         <img
           src={unauthImg}
           alt="unauthorized"
           className="max-w-sm md:max-w-md"
         />
 
-        {/* BUTTON */}
+       
         <button
           onClick={() => navigate("/")}
           className="absolute left-1/2 -translate-x-1/2 top-[72%] px-6 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:opacity-90"

@@ -6,7 +6,7 @@ import usersReducer from "../redux/slices/usersSlice";
 
 const store = configureStore({
   reducer: {
-    auth: authReducer, // 🔥 add this
+    auth: authReducer, 
     task: taskReducer,
     users: usersReducer
   },

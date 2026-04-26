@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import api from "../api/axios"; // path adjust kar
+import api from "../api/axios";
 import { setUser } from "../redux/slices/authSlice";
 import { toast } from "react-toastify";
 
@@ -34,6 +34,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.name.trim()) {
       return toast.error("Name is required ❌");
     }
@@ -45,21 +46,19 @@ const Profile = () => {
     setUpdating(true);
 
     try {
-      const res = await api.put("/auth/update-profile", {
+      const res = await api.patch("/auth/update-profile", {
         name: formData.name,
       });
 
       dispatch(setUser(res.data.user));
       toast.success("Profile updated successfully ✅");
     } catch (err) {
-      console.log(err);
       toast.error(err.response?.data?.message || "Update failed ❌");
     } finally {
-      setUpdating(false); // 🔥 stop loading
+      setUpdating(false);
     }
   };
 
-  // 🔥 SAME AVATAR AS SIDEBAR
   const avatar = `https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.email}`;
 
   return (
@@ -70,10 +69,11 @@ const Profile = () => {
       </p>
 
       <div className="w-full bg-[#0f172a]/90 border border-white/10 rounded-2xl p-4 md:p-6 flex flex-col lg:flex-row gap-4 md:gap-6">
-        {/* LEFT */}
-        <div className="w-full lg:w-1/3 bg-[#020617] border border-white/10 rounded-xl p-4 md:p-6 flex flex-col items-center justify-center text-center">
+        {/* LEFT SIDE ICON INFO*/}
+        <div className="w-full lg:w-1/3 bg-[#020617] border border-white/10 rounded-xl p-4 md:p-6 flex flex-col items-center justify-center text-center min-h-[300px]">
           <img
             src={avatar}
+            alt="avatar"
             className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-purple-500"
           />
 
@@ -81,14 +81,16 @@ const Profile = () => {
             {formData.name}
           </h2>
 
-          <p className="text-gray-400 text-xs md:text-sm">{formData.email}</p>
+          <p className="text-gray-400 text-xs md:text-sm">
+            {formData.email}
+          </p>
 
           <span className="mt-2 px-3 py-1 text-xs bg-white/10 rounded-full">
             {formData.role === "admin" ? "Admin" : "User"}
           </span>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT SIDE INFO EDIT*/}
         <form
           onSubmit={handleSubmit}
           className="w-full lg:w-2/3 bg-[#020617] border border-white/10 rounded-xl p-4 md:p-6"
@@ -104,29 +106,29 @@ const Profile = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={`w-full p-3 rounded-lg ${
+              className={`w-full p-3 rounded-lg border ${
                 !formData.name ? "border-red-500" : "border-white/10"
               }`}
             />
           </div>
 
-          {/* Email (read only) */}
+          {/* Email */}
           <div className="mb-4">
             <label className="text-xs md:text-sm text-gray-400">Email</label>
             <input
               value={formData.email}
               readOnly
-              className="w-full mt-1.5 md:mt-2 p-2.5 md:p-3 text-sm rounded-lg bg-[#020617] border border-white/10 outline-none"
+              className="w-full mt-2 p-3 text-sm rounded-lg bg-[#020617] border border-white/10 outline-none"
             />
           </div>
 
-          {/* Role (read only) */}
+          {/* Role */}
           <div className="mb-5">
             <label className="text-xs md:text-sm text-gray-400">Role</label>
             <input
               value={formData.role === "admin" ? "Admin" : "User"}
               readOnly
-              className="w-full mt-1.5 md:mt-2 p-2.5 md:p-3 text-sm rounded-lg bg-[#020617] border border-white/10 outline-none"
+              className="w-full mt-2 p-3 text-sm rounded-lg bg-[#020617] border border-white/10 outline-none"
             />
           </div>
 
@@ -134,7 +136,7 @@ const Profile = () => {
           <button
             type="submit"
             disabled={updating}
-            className="w-full py-2.5 md:py-3 text-sm md:text-base rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90 active:scale-99"
+            className="w-full py-2.5 md:py-3 text-sm md:text-base rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90 disabled:opacity-50"
           >
             {updating ? "Updating..." : "Update Profile"}
           </button>
@@ -145,3 +147,21 @@ const Profile = () => {
 };
 
 export default Profile;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -6,16 +6,18 @@ const {
   getTasks,
   updateTask,
   deleteTask,
+  getSingleTask,
 } = require("../controllers/task.controller");
 
 const authMiddleware = require("../middleware/auth.middleware");
 
-// 🔥 IMPORT VALIDATION
+
 const { taskValidation } = require("../middleware/validator");
 
-// 🔥 APPLY VALIDATION
+
 router.post("/", authMiddleware, taskValidation, createTask);
 router.get("/", authMiddleware, getTasks);
+router.get("/:id", authMiddleware, getSingleTask);
 router.patch("/:id", authMiddleware, taskValidation, updateTask);
 router.delete("/:id", authMiddleware, deleteTask);
 

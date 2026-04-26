@@ -6,7 +6,7 @@ import {
 } from "../../services/authService";
 import api from "../../api/axios";
 
-// 🔥 LOGIN
+
 export const login = createAsyncThunk(
   "auth/login",
   async (data, { rejectWithValue }) => {
@@ -19,7 +19,7 @@ export const login = createAsyncThunk(
   },
 );
 
-// 🔥 REGISTER
+
 export const register = createAsyncThunk(
   "auth/register",
   async (data, { rejectWithValue }) => {
@@ -34,7 +34,7 @@ export const register = createAsyncThunk(
   },
 );
 
-// 🔥 LOGOUT
+
 export const logoutAsync = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
@@ -82,7 +82,7 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
 
-    // 🔥 ADD THIS
+    
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
@@ -90,7 +90,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // LOGIN
+     
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -98,14 +98,14 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload?.user || null;
-        state.isAuthenticated = !!action.payload?.user; // 👈 SAFE
+        state.isAuthenticated = !!action.payload?.user; 
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // REGISTER
+
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -118,7 +118,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // LOGOUT
+     
       .addCase(logoutAsync.pending, (state) => {
         state.loading = true;
       })
@@ -146,7 +146,7 @@ const authSlice = createSlice({
   },
 });
 
-// 🔥 export me bhi add kar
+
 export const { clearError, setAuth, setUser, setLoading } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { updateTask } from "../../redux/slices/taskSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { updateTask, setLoading } from "../../redux/slices/taskSlice";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import api from "../../api/axios";
 
 const TaskUpdate = ({ task, onClose }) => {
   const { loading } = useSelector((state) => state.task);
-
   const dispatch = useDispatch();
 
   const [form, setForm] = useState({
@@ -24,6 +23,10 @@ const TaskUpdate = ({ task, onClose }) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
 
+    if (!form.title.trim()) {
+      return toast.error("Title is required ❌");
+    }
+
     const finalData = {
       title: form.title,
       description: form.description,
@@ -32,21 +35,21 @@ const TaskUpdate = ({ task, onClose }) => {
       dueDate: form.date,
     };
 
-    const res = await dispatch(updateTask({ id: task._id, data: finalData }));
+    try {
+      dispatch(setLoading(true));
 
-    if (res.meta.requestStatus === "fulfilled") {
+      const res = await api.patch(`/tasks/${task._id}`, finalData);
+
+      dispatch(updateTask(res.data.task));
+
       toast.success("Task updated successfully ✅");
       onClose();
-    } else {
-      toast.error(res.payload || "Update failed ❌");
-    }
+    } catch (err) {
+      toast.error("Update failed ❌");
+    } finally {
+    dispatch(setLoading(false)); 
+  }
   };
-
-  // const handleDelete = () => {
-  //   dispatch(deleteTask(task._id));
-  //   toast.error("Task deleted successfully 🗑️");
-  //   onClose();
-  // };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
@@ -60,6 +63,7 @@ const TaskUpdate = ({ task, onClose }) => {
             onChange={handleChange}
             className="w-full p-2 bg-[#020617] text-white rounded"
           />
+
           <textarea
             name="description"
             value={form.description}
@@ -68,10 +72,10 @@ const TaskUpdate = ({ task, onClose }) => {
           />
 
           <select
-            className="w-full p-2 bg-[#020617] text-white rounded border border-white/10 outline-none"
             name="status"
             value={form.status}
             onChange={handleChange}
+            className="w-full p-2 bg-[#020617] text-white rounded border border-white/10 outline-none"
           >
             <option>Pending</option>
             <option>In Progress</option>
@@ -79,10 +83,10 @@ const TaskUpdate = ({ task, onClose }) => {
           </select>
 
           <select
-            className="w-full p-2 bg-[#020617] text-white rounded border border-white/10 outline-none"
             name="priority"
             value={form.priority}
             onChange={handleChange}
+            className="w-full p-2 bg-[#020617] text-white rounded border border-white/10 outline-none"
           >
             <option>Low</option>
             <option>Medium</option>
@@ -120,3 +124,14 @@ const TaskUpdate = ({ task, onClose }) => {
 };
 
 export default TaskUpdate;
+
+
+
+
+
+
+
+
+
+
+

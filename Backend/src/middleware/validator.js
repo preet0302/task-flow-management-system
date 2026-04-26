@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const AppError = require("../utils/AppError");
 
-// 🔥 REGISTER VALIDATION
+//REGISTER VALIDATION
 const registerValidation = (req, res, next) => {
   const schema = Joi.object({
     name: Joi.string().min(2).required(),
@@ -18,7 +18,7 @@ const registerValidation = (req, res, next) => {
   next();
 };
 
-// 🔥 LOGIN VALIDATION
+//LOGIN VALIDATION
 const loginValidation = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
@@ -34,10 +34,10 @@ const loginValidation = (req, res, next) => {
   next();
 };
 
-// 🔥 TASK VALIDATION
+// TASK VALIDATION
 const taskValidation = (req, res, next) => {
   const schema = Joi.object({
-    title: Joi.string().min(3).required(),
+    title: Joi.string().min(3),
     description: Joi.string().allow(""),
     status: Joi.string().valid("Pending", "In Progress", "Completed"),
     priority: Joi.string().valid("Low", "Medium", "High"),
@@ -56,7 +56,7 @@ const userUpdateValidation = (req, res, next) => {
   const schema = Joi.object({
     name: Joi.string().min(2),
     email: Joi.string().email(),
-    role: Joi.string().valid("user", "admin"),
+    
   });
 
   const { error } = schema.validate(req.body);

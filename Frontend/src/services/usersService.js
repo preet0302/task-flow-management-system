@@ -1,17 +1,15 @@
-// services/userService.js
-import API from "../api/axios";
+import api from "../api/axios";
 
 export const getUsersAPI = async () => {
-  const res = await API.get("/users");
-  return res.data;
+  const { data } = await api.get("/users");
+  return data;
 };
 
 export const deleteUserAPI = async (id) => {
-  const res = await API.delete(`/users/${id}`);
-  return res.data;
+  await api.delete(`/users/${id}`);
 };
 
-export const updateUserAPI = async ({ id, data }) => {
-  const res = await API.patch(`/users/${id}`, data);
-  return res.data;
+export const updateUserAPI = async (id, payload) => {
+  const { data } = await api.patch(`/users/${id}`, payload);
+  return data;
 };
